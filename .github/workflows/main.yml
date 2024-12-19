@@ -4,6 +4,12 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "**.md"
+      - ".editorconfig"
+      - '**/*.gitignore'
+      - '**/*.gitattributes'
+      - '**/*.yml'
 
 jobs:
   deploy-to-github-pages:
@@ -22,14 +28,17 @@ jobs:
       - name: Install WASM workload
         run: dotnet workload install wasm-tools
 
-      - name: Restore NuGet packages
+      - name: Restore dependencies
         run: dotnet restore
 
       - name: List NuGet packages
         run: ls /home/runner/.nuget/packages/
 
-      - name: Test
-        run: dotnet test
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test --configuration Release --no-build
 
       # publishes Blazor project to the release-folder
       - name: Publish .NET Core Project
